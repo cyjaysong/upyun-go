@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"path"
 	"strconv"
 	"strings"
@@ -97,8 +98,14 @@ func (c *Client) VerifyHeaderAuthorization(authorization, date, method, path, fi
 // GetHeaderAuthorization 获取Header认证标识
 // filePath 不包含 Bucket
 func (c *Client) GetHeaderAuthorization(method, filePath, fileMd5 string) (authorization, date, reqPath string) {
-	reqPath = path.Join("/", c.config.Bucket, filePath)
-	if filePath == "/" {
+	filePaths := strings.Split(filePath, "/")
+	reqPaths := make([]string, 0, len(filePaths)+2)
+	reqPaths = append(reqPaths, "/", c.config.Bucket)
+	for _, s := range filePaths {
+		reqPaths = append(reqPaths, url.PathEscape(s))
+	}
+	reqPath = path.Join(reqPaths...)
+	if strings.HasSuffix(filePath, "/") {
 		reqPath += "/"
 	}
 	timeNow := time.Now()

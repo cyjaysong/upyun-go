@@ -125,7 +125,6 @@ func (c *Client) List(dirPath, iter string, limit int, desc bool) (files []*File
 	if resp.StatusCode != 200 {
 		return nil, "", fmt.Errorf("get obj list failed: %s", resp.String())
 	}
-	//fmt.Println(resp.HeaderToString())
 	if nextIter = resp.GetHeader("X-Upyun-List-Iter"); nextIter == "g2gCZAAEbmV4dGQAA2VvZg" {
 		nextIter = ""
 	}
