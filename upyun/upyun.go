@@ -21,6 +21,9 @@ type Config struct {
 	passwordMD5Bytes []byte
 	baseUrl          string
 
+	MaxIdleConns    int // 可选，与又拍云的最大空闲连接数量
+	MaxConnsPerHost int // 可选，与又拍云的最大并发数量
+
 	Bucket    string
 	Operator  string
 	Password  string
@@ -37,7 +40,10 @@ type Client struct {
 
 // NewClient 创建新的又拍云客户端
 func NewClient(config *Config) *Client {
-	client := &Client{config: config, req: reqUtil.C()}
+	client := &Client{
+		config: config,
+		req:    reqUtil.C(),
+	}
 	client.config.passwordMD5Bytes = []byte(strMd5(config.Password))
 	// 设置默认Domain
 	if config.Domain == "" {
@@ -52,6 +58,12 @@ func NewClient(config *Config) *Client {
 	if config.UserAgent != "" {
 		client.req.SetUserAgent(config.UserAgent)
 	}
+	// 设置最大空闲连接数量
+	client.req.SetMaxIdleConns(config.MaxIdleConns)
+	// 设置最大并发数量
+	client.req.SetMaxConnsPerHost(config.MaxConnsPerHost)
+	// 设置请求重试次数
+	client.req.SetCommonRetryCount(3)
 	return client
 }
 
