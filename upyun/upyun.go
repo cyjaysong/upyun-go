@@ -137,7 +137,7 @@ func (c *Client) GetHeaderAuthorization(method, filePath, fileMd5 string) (autho
 // GetBodyAuthorization 获取Body认证标识
 // filePath 不包含 Bucket
 func (c *Client) GetBodyAuthorization(method, filePath, fileMd5 string,
-	policyParams map[string]string, expire time.Duration) (authorization, policy, reqPath string) {
+	policyParams map[string]any, expire time.Duration) (authorization, policy, reqPath string) {
 	reqPath = path.Join("/", c.config.Bucket)
 	timeNow := time.Now()
 	date := makeRFC1123Date(timeNow)
@@ -147,7 +147,7 @@ func (c *Client) GetBodyAuthorization(method, filePath, fileMd5 string,
 	mac := hmac.New(sha1.New, c.config.passwordMD5Bytes)
 	elements := []string{method, reqPath, date}
 	if len(policyParams) == 0 {
-		policyParams = make(map[string]string)
+		policyParams = make(map[string]any)
 	}
 	policyParams["bucket"] = c.config.Bucket
 	policyParams["expiration"] = strconv.FormatInt(timeNow.Add(expire).Unix(), 10)
